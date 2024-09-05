@@ -1,0 +1,21 @@
+   # Environment variables
+   .env
+
+   # Logs
+   *.log
+
+   # Temporary files
+   *.tmp
+   *.temp
+
+   # IDE specific files
+   .vscode/
+   .idea/
+
+   # OS generated files
+   .DS_Store
+   Thumbs.db
+
+   # Other
+   *.local
+   *.lock

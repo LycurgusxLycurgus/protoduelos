@@ -1,0 +1,20 @@
+BASH_SCRIPTS
+    ---
+
+    chmod +x combine_files.sh
+
+    ./context_llm/scripts/combine_files.sh
+
+    ---
+
+    chmod +x generate_file_tree.sh
+
+    ./context_llm/scripts/generate_file_tree.sh
+
+    ---
+
+    chmod +x run_both.sh
+
+    ./context_llm/scripts/run_both.sh
+
+    ---

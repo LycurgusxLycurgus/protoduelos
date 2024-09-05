@@ -1,0 +1,34 @@
+---
+Updated libraries
+    1. Run the required prompts on perplexity
+---
+Libraries & Practices
+    1. Fill in all the placeholders in APP_DESCRIPTION
+        1. Focus on logic features and basic ux, let the LLM handle the GUI and Frontend-UX at this point. 
+    2. Write the key features
+        1. List the core functionalities of your application. What will users be able to do with it?
+        2. Replace brief description and project name parenthesis with your answer. 
+---
+updated framework
+    1. After the main framework has been chosen use its output for project creation. 
+---
+code expansion
+    1. If the functions are too extensive or there are many functions to be coded, use the 'too much to code' variable from contextnote file.
+---
+roadmap expansion
+    1. Fill in all the placeholders in APP_EXPANSION
+    2. Select the category of expansion
+        1. Logic
+            or
+        2. UX and GUI?
+    3. Write the new features
+        1. List the core functionalities of your application. What will users be able to do with it?
+---
+simple debugging
+    1. If you need to add more errors just copy and start with "Also I expected the code to..."
+---
+\n
+---
+merging
+    1. This prompt should work for the merging of the old roadmap with the expanded roadmap
+---

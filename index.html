@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConversAI Flow</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100">
+    <div id="app" class="container mx-auto p-4">
+        <h1 class="text-2xl font-bold mb-4">ConversAI Flow</h1>
+        <div id="terminal" class="bg-black text-green-400 p-4 rounded-lg h-64 overflow-y-auto mb-4"></div>
+        <div id="dashboard" class="bg-white p-4 rounded-lg">
+            <h2 class="text-xl font-semibold mb-2">Conversation History</h2>
+            <ul id="history" class="list-disc pl-4"></ul>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/svelte@3.44.0/dist/svelte.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

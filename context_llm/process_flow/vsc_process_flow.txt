@@ -1,0 +1,11 @@
+---
+Source control
+
+1. Create a New GitHub Repository: Go to GitHub and create a new repository without a README or any initial files.
+2. Clone the New Repository:
+ 2.1 In VS Code, use the Clone command from the Source Control panel.
+ 2.2 Enter the URL of the new repository you just created.
+3. Copy Your Project Files: Copy your existing project files (excluding the .git folder) into the newly cloned repository folder.
+4. Stage and Commit:
+ 4.1. Go back to the Source Control panel, stage all your files (command), and commit (command) them.
+ 4.2. Push (command) to GitHub: Finally, push your changes to the new GitHub repository.

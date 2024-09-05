@@ -1,0 +1,20 @@
+#terminal {
+    font-family: 'Courier New', monospace;
+}
+
+#terminal::-webkit-scrollbar {
+    width: 8px;
+}
+
+#terminal::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+#terminal::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+#terminal::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
