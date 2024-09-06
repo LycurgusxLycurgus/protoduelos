@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "ConversAI Flow application",
   "main": "dist/app.js",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "start": "node dist/app.js",
-    "dev": "ts-node app.ts"
+    "dev": "ts-node-esm app.ts"
   },
   "dependencies": {
     "axios": "^0.27.2",
