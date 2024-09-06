@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { logger } from './app';  // Changed from './logger' to './app'
+import { logger } from './app.js';  // Changed from './app' to './app.js'
 
 export class WhatsAppAPI {
   private token: string;

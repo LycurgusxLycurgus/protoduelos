@@ -6,7 +6,7 @@ import { LLMChain } from 'langchain/chains';
 import dotenv from 'dotenv';
 import winston from 'winston';
 import util from 'util';
-import { WhatsAppAPI } from './whatsapp';
+import { WhatsAppAPI } from './whatsapp.js';
 
 // Load environment variables
 dotenv.config();
