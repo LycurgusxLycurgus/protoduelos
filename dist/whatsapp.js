@@ -1,12 +1,6 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.WhatsAppAPI = void 0;
-const axios_1 = __importDefault(require("axios"));
-const app_1 = require("./app"); // Changed from './logger' to './app'
-class WhatsAppAPI {
+import axios from 'axios';
+import { logger } from './app.js'; // Changed from './app' to './app.js'
+export class WhatsAppAPI {
     constructor(token, phoneNumberId) {
         this.token = token;
         this.phoneNumberId = phoneNumberId;
@@ -14,7 +8,7 @@ class WhatsAppAPI {
     }
     async sendTextMessage(to, text) {
         try {
-            const response = await axios_1.default.post(this.apiUrl, {
+            const response = await axios.post(this.apiUrl, {
                 messaging_product: 'whatsapp',
                 recipient_type: 'individual',
                 to,
@@ -26,16 +20,16 @@ class WhatsAppAPI {
                     'Content-Type': 'application/json',
                 },
             });
-            app_1.logger.info('Message sent successfully:', response.data);
+            logger.info('Message sent successfully:', response.data);
         }
         catch (error) {
-            app_1.logger.error('Error sending WhatsApp message:', error);
+            logger.error('Error sending WhatsApp message:', error);
             throw error;
         }
     }
     async sendInteractiveMessage(to, text, buttons) {
         try {
-            const response = await axios_1.default.post(this.apiUrl, {
+            const response = await axios.post(this.apiUrl, {
                 messaging_product: 'whatsapp',
                 recipient_type: 'individual',
                 to,
@@ -56,12 +50,11 @@ class WhatsAppAPI {
                     'Content-Type': 'application/json',
                 },
             });
-            app_1.logger.info('Interactive message sent successfully:', response.data);
+            logger.info('Interactive message sent successfully:', response.data);
         }
         catch (error) {
-            app_1.logger.error('Error sending WhatsApp interactive message:', error);
+            logger.error('Error sending WhatsApp interactive message:', error);
             throw error;
         }
     }
 }
-exports.WhatsAppAPI = WhatsAppAPI;
