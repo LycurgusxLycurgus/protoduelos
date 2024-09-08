@@ -53,7 +53,7 @@ const thoughtfulResponseLLM = new ChatGroq({
 
 // Define the thoughtful-response prompt
 const thoughtfulResponsePrompt = ChatPromptTemplate.fromTemplate(
-  "You are a world-class psychologist providing top-notch emotional support. Given the user's message: '{user_message}', generate a concise, empathetic, and supportive response suitable for a WhatsApp message. If appropriate, suggest up to three follow-up actions or questions, each starting with '- '. Your response should be brief but impactful, focusing on emotional support and guidance."
+  "Eres un psicólogo de clase mundial que brinda un apoyo emocional de alta calidad. Dado el mensaje del usuario: '{user_message}', genera una respuesta concisa, empática y de apoyo adecuada para un mensaje de WhatsApp. Sugiere hasta tres acciones o preguntas de seguimiento, cada una comenzando. Tu respuesta debe ser breve pero impactante, centrada en el apoyo y la orientación emocional."
 );
 
 // Create the chain (simplified for now, but extensible)
