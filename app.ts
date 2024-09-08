@@ -47,13 +47,13 @@ const whatsappApi = new WhatsAppAPI(whatsappToken, whatsappPhoneNumberId);
 // LangChain configuration
 const thoughtfulResponseLLM = new ChatGroq({ 
   model: "llama-3.1-8b-instant",
-  temperature: 0.5, // Slightly increased for more creative responses
+  temperature: 0.7, // Slightly increased for more creative responses
   apiKey: process.env.GROQ_API_KEY
 });
 
 // Define the thoughtful-response prompt
 const thoughtfulResponsePrompt = ChatPromptTemplate.fromTemplate(
-  "Eres un psicólogo de clase mundial que brinda un apoyo emocional de alta calidad. Dado el mensaje del usuario: '{user_message}', genera una respuesta empática y de apoyo adecuada para un mensaje de WhatsApp.\n\nNOTA // Genera tu mensaje directamente, sin comillas o nada similar."
+  "Eres un psicólogo de clase mundial que brinda un apoyo emocional de alta calidad. Dado el mensaje del usuario: '{user_message}', genera una respuesta empática y de apoyo adecuada para un mensaje de WhatsApp; asegúrate que tus mensajes sean detallados y prácticos.\n\nNOTA // Genera tu mensaje directamente, sin comillas o nada similar."
 );
 
 // Create the chain (simplified for now, but extensible)
