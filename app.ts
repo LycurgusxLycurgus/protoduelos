@@ -2,11 +2,11 @@ import express from 'express';
 import dotenv from 'dotenv';
 import winston from 'winston';
 import util from 'util';
-import { ChatOpenAI } from "@langchain/openai";
 import { ChatGroq } from "@langchain/groq";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { WhatsAppAPI } from './whatsapp.js';
+import { HumanMessage, AIMessage } from "@langchain/core/messages";
 
 // Load environment variables
 dotenv.config();
@@ -45,21 +45,24 @@ if (!whatsappToken || !whatsappPhoneNumberId) {
 const whatsappApi = new WhatsAppAPI(whatsappToken, whatsappPhoneNumberId);
 
 // LangChain configuration
-const thoughtfulResponseLLM = new ChatGroq({ 
+const llm = new ChatGroq({ 
   model: "llama-3.1-8b-instant",
-  temperature: 0.7, // Slightly increased for more creative responses
+  temperature: 0.7,
   apiKey: process.env.GROQ_API_KEY
 });
 
-// Define the thoughtful-response prompt
-const thoughtfulResponsePrompt = ChatPromptTemplate.fromTemplate(
-  "Eres un psicólogo de clase mundial que brinda un apoyo emocional de alta calidad. Dado el mensaje del usuario: '{user_message}', genera una respuesta empática y de apoyo adecuada para un mensaje de WhatsApp; asegúrate que tus mensajes sean detallados y prácticos.\n\nNOTA // Genera tu mensaje directamente, sin comillas o nada similar."
-);
+// Define the prompt template with message history
+const promptTemplate = ChatPromptTemplate.fromMessages([
+  ["system", "Eres un psicólogo de clase mundial que brinda un apoyo emocional de alta calidad. Asegúrate que tus mensajes sean detallados y prácticos."],
+  new MessagesPlaceholder("chat_history"),
+  ["human", "{input}"]
+]);
 
-// Create the chain (simplified for now, but extensible)
-const chain = thoughtfulResponsePrompt
-  .pipe(thoughtfulResponseLLM)
-  .pipe(new StringOutputParser());
+// Create the chain
+const chain = promptTemplate.pipe(llm).pipe(new StringOutputParser());
+
+// In-memory message store (replace with a database in production)
+const messageStore: { [key: string]: (HumanMessage | AIMessage)[] } = {};
 
 // Interfaces
 interface WhatsAppMessage {
@@ -68,47 +71,38 @@ interface WhatsAppMessage {
   button_payload?: string;
 }
 
-interface LangChainResponse {
-  text: string;
-  buttons?: string[];
-}
-
 // Helper functions
-async function processMessage(message: WhatsAppMessage): Promise<LangChainResponse> {
+async function processMessage(message: WhatsAppMessage): Promise<string> {
   try {
     const input = message.button_payload || message.text;
     logger.info(`Processing input: ${input}`);
 
-    const response = await chain.invoke({ user_message: input });
+    // Retrieve or initialize chat history
+    const chatHistory = messageStore[message.from] || [];
+
+    // Invoke the chain with chat history
+    const response = await chain.invoke({
+      chat_history: chatHistory,
+      input: input
+    });
+
     logger.info(`LangChain response: ${util.inspect(response, { depth: null })}`);
 
-    // Extract buttons from the response
-    const buttons = extractButtons(response);
-    logger.info(`Extracted buttons: ${util.inspect(buttons, { depth: null })}`);
+    // Update chat history
+    chatHistory.push(new HumanMessage(input));
+    chatHistory.push(new AIMessage(response));
+    messageStore[message.from] = chatHistory.slice(-10); // Keep last 10 messages
 
-    return {
-      text: response,
-      buttons: buttons,
-    };
+    return response;
   } catch (error) {
     logger.error('Error processing message with LangChain:', error);
-    return { text: 'I apologize, but I encountered an issue while processing your message. How else can I support you today?' };
+    return 'I apologize, but I encountered an issue while processing your message. How else can I support you today?';
   }
 }
 
-function extractButtons(text: string): string[] {
-  const buttonRegex = /^- (.+)$/gm;
-  const matches = text.match(buttonRegex);
-  return matches ? matches.map(match => match.replace(/^- /, '').trim()) : [];
-}
-
-async function sendWhatsAppMessage(to: string, message: string, buttons?: string[]) {
+async function sendWhatsAppMessage(to: string, message: string) {
   try {
-    if (buttons && buttons.length > 0) {
-      await whatsappApi.sendInteractiveMessage(to, message, buttons);
-    } else {
-      await whatsappApi.sendTextMessage(to, message);
-    }
+    await whatsappApi.sendTextMessage(to, message);
     logger.info('WhatsApp message sent successfully');
   } catch (error) {
     logger.error('Error sending WhatsApp message:', error);
@@ -173,11 +167,10 @@ async function handleIncomingMessage(message: any): Promise<any> {
     
     if (type === 'text') {
       const response = await processMessage({ from, text: text.body });
-      await sendWhatsAppMessage(from, response.text, response.buttons);
+      await sendWhatsAppMessage(from, response);
       return {
         to: from,
-        responseText: response.text,
-        buttons: response.buttons,  // This line ensures buttons are included in the response
+        responseText: response
       };
     } else {
       logger.info(`Received unsupported message type: ${type}`);
