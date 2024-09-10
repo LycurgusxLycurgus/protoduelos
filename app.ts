@@ -173,10 +173,11 @@ async function handleIncomingMessage(message: any): Promise<any> {
         responseText: response
       };
     } else {
-      logger.info(`Received unsupported message type: ${type}`);
+      const nonTextResponse = handleNonTextMessage(type);
+      await sendWhatsAppMessage(from, nonTextResponse);
       return {
         to: from,
-        responseText: "Unsupported message type",
+        responseText: nonTextResponse,
         messageType: type
       };
     }
@@ -187,6 +188,11 @@ async function handleIncomingMessage(message: any): Promise<any> {
       details: error instanceof Error ? error.message : 'Unknown error'
     };
   }
+}
+
+function handleNonTextMessage(messageType: string): string {
+  logger.info(`Received unsupported message type: ${messageType}`);
+  return 'Pronto habilitaremos la función de escuchar tus audios, ver tus imágenes y responderte adecuadamente, mantente al tanto a nuestras actualizaciones';
 }
 
 // Start server
