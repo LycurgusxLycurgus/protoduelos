@@ -192,7 +192,7 @@ async function handleIncomingMessage(message: any): Promise<any> {
 
 function handleNonTextMessage(messageType: string): string {
   logger.info(`Received unsupported message type: ${messageType}`);
-  return 'Pronto habilitaremos la función de escuchar tus audios, ver tus imágenes y responderte adecuadamente, mantente al tanto a nuestras actualizaciones';
+  return 'Por favor, escribe un mensaje de texto y te responderé lo antes posible. Ten en cuenta que actualmente no puedo responder a imágenes, audios ni videos, pero estoy aquí para ayudarte a través de mensajes de texto.';
 }
 
 // Start server
