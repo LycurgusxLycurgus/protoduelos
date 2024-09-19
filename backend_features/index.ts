@@ -9,6 +9,6 @@ const router = express.Router();
 router.use('/chat-list', chatRoutes);
 router.use('/messages', messageRoutes);
 router.use('/llm-monitoring', llmRoutes);
-router.use('/llm-visualization', llmRoutes); // Assuming llmRoutes handles both monitoring and visualization
+router.use('/llm-visualization', llmRoutes);
 
 export default router;

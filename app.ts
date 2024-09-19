@@ -8,6 +8,7 @@ import { StringOutputParser } from "@langchain/core/output_parsers";
 import { WhatsAppAPI } from './whatsapp.js';
 import { HumanMessage, AIMessage } from "@langchain/core/messages";
 import backendFeatures from './backend_features/index.js'; // Importing new backend features
+import cors from 'cors';
 
 // Load environment variables
 dotenv.config();
@@ -35,6 +36,7 @@ const port = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(express.static('public'));
+app.use(cors());
 
 // WhatsApp API configuration
 const whatsappToken = process.env.WHATSAPP_ACCESS_TOKEN;
