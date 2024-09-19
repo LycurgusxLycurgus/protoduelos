@@ -1,12 +1,15 @@
 {
   "compilerOptions": {
     "target": "es2020",
-    "module": "es2020",
+    "module": "esnext", // Changed from "es2020" to "esnext"
     "moduleResolution": "node",
     "outDir": "./dist",
     "rootDir": "./",
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true, // Allows importing JSON modules
+    "skipLibCheck": true
   },
   "include": ["./**/*"],
   "exclude": ["node_modules", "dist"]

@@ -7,6 +7,7 @@ import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { WhatsAppAPI } from './whatsapp.js';
 import { HumanMessage, AIMessage } from "@langchain/core/messages";
+import backendFeatures from './backend_features/index.js'; // Importing new backend features
 
 // Load environment variables
 dotenv.config();
@@ -27,6 +28,7 @@ const logger = winston.createLogger({
 
 export { logger };
 
+// Initialize Express app
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -43,6 +45,7 @@ if (!whatsappToken || !whatsappPhoneNumberId) {
 }
 
 const whatsappApi = new WhatsAppAPI(whatsappToken, whatsappPhoneNumberId);
+app.locals.whatsappApi = whatsappApi; // Making whatsappApi accessible in routes
 
 // LangChain configuration
 const llm = new ChatGroq({ 
@@ -53,7 +56,7 @@ const llm = new ChatGroq({
 
 // Define the prompt template with message history
 const promptTemplate = ChatPromptTemplate.fromMessages([
-  ["system", "Eres la psicóloga Gloria Esther Acevedo Palacio, psicóloga clínica graduada de la Universidad Javeriana, con amplia experiencia en psicología infantil, adolescentes y adultos. Eres especialista en acompañar a las personas en procesos de pérdidas, duelos, depresión, y en proporcionar apoyo emocional para una amplia variedad de necesidades.\n\nTu enfoque se basa en una combinación de la Terapia Dialéctica Conductual (DBT) y la Psicoterapia Analítica Junguiana. Utilizas los principios de DBT para ayudar a los usuarios a aceptar su realidad actual mientras exploran vías de cambio práctico. Al mismo tiempo, sigues el enfoque junguiano de autodescubrimiento, ayudando a las personas a conectar con su inconsciente, comprender los símbolos y arquetipos que influyen en su vida, y encontrar un propósito más profundo.\n\nSiempre debes:\n\nAceptar y validar las emociones del usuario mientras le proporcionas herramientas prácticas para mejorar su bienestar emocional. Reconoce la dualidad entre la aceptación y la necesidad de cambio, invitando al usuario a explorar ambas dimensiones.\n\nEn cada mensaje, además de reflexionar sobre los patrones internos y emociones del usuario, debes ofrecer ejercicios o recomendaciones concretas que puedan poner en práctica. Estos pueden incluir:\n\nEstrategias de regulación emocional y tolerancia al malestar (según DBT).\nEjercicios de mindfulness para anclarse al presente.\nTareas de autodescubrimiento que exploren símbolos y arquetipos junguianos.\nGuiar al usuario hacia la introspección y la autoexploración, ayudándolo a identificar patrones internos y arquetipos que puedan estar influyendo en su vida emocional y comportamiento. Combina siempre estas reflexiones profundas con acciones concretas que puedan realizar para avanzar en su proceso de sanación y desarrollo.\n\nEquilibrar lo práctico con lo profundo: siempre ofrece estrategias específicas, como habilidades de regulación emocional, tolerancia al malestar y mindfulness (según el enfoque DBT), mientras invitas al usuario a explorar la dimensión simbólica y narrativa de su vida, como lo haría la psicoterapia junguiana.\n\nFomentar el desarrollo del sentido y la dirección en la vida: haz que tus respuestas apunten no solo al alivio emocional inmediato, sino también a ayudar al usuario a descubrir un sentido más profundo y un propósito que le permita encontrar mayor significado en sus experiencias.\n\nAdaptarte a las necesidades del usuario: ya sea que el usuario busque consuelo en un momento de crisis o que desee hacer un trabajo profundo de autoconocimiento, ajusta tu tono y tus respuestas según el nivel de urgencia y profundidad emocional, asegurándote siempre de incluir recomendaciones prácticas o ejercicios que puedan aplicar de inmediato."],
+  ["system", "Eres la psicóloga Gloria Esther Acevedo Palacio, psicóloga clínica graduada de la Universidad Javeriana, con amplia experiencia en psicología infantil, adolescentes y adultos. ..."],
   new MessagesPlaceholder("chat_history"),
   ["human", "{input}"]
 ]);
@@ -61,8 +64,11 @@ const promptTemplate = ChatPromptTemplate.fromMessages([
 // Create the chain
 const chain = promptTemplate.pipe(llm).pipe(new StringOutputParser());
 
-// In-memory message store (replace with a database in production)
-const messageStore: { [key: string]: (HumanMessage | AIMessage)[] } = {};
+// In-memory message store with timestamps
+export const messageStore: { [key: string]: { msg: HumanMessage | AIMessage; timestamp: string }[] } = {};
+
+// Execution logs for LLM monitoring (exported for use in backend_features)
+const executionLogs: any[] = [];
 
 // Interfaces
 interface WhatsAppMessage {
@@ -77,21 +83,37 @@ async function processMessage(message: WhatsAppMessage): Promise<string> {
     const input = message.button_payload || message.text;
     logger.info(`Processing input: ${input}`);
 
+    const startTime = Date.now();
+
     // Retrieve or initialize chat history
     const chatHistory = messageStore[message.from] || [];
 
     // Invoke the chain with chat history
     const response = await chain.invoke({
-      chat_history: chatHistory,
+      chat_history: chatHistory.map(entry => entry.msg), // Extract messages without timestamps
       input: input
     });
 
+    const latency = Date.now() - startTime;
+
     logger.info(`LangChain response: ${util.inspect(response, { depth: null })}`);
 
-    // Update chat history
-    chatHistory.push(new HumanMessage(input));
-    chatHistory.push(new AIMessage(response));
+    // Current timestamp
+    const now = new Date().toISOString();
+
+    // Update chat history with timestamp
+    chatHistory.push({ msg: new HumanMessage(input), timestamp: now });
+    chatHistory.push({ msg: new AIMessage(response), timestamp: now });
     messageStore[message.from] = chatHistory.slice(-10); // Keep last 10 messages
+
+    // Log execution
+    executionLogs.push({
+      timestamp: now,
+      input: input,
+      output: response,
+      latency: latency,
+      intermediateSteps: [] // Populate if available
+    });
 
     return response;
   } catch (error) {
@@ -121,7 +143,7 @@ function verifyWebhook(mode: string, token: string): boolean {
   return false;
 }
 
-// Webhook endpoints
+// Webhook endpoints remain unchanged
 app.get('/webhook', (req, res) => {
   const mode = req.query['hub.mode'];
   const token = req.query['hub.verify_token'];
@@ -195,7 +217,13 @@ function handleNonTextMessage(messageType: string): string {
   return 'Por favor, escribe un mensaje de texto y te responderé lo antes posible. Ten en cuenta que actualmente no puedo responder a imágenes, audios ni videos, pero estoy aquí para ayudarte a través de mensajes de texto.';
 }
 
+// Mounting the new backend features
+app.use('/api', backendFeatures);
+
 // Start server
 app.listen(port, () => {
   logger.info(`Server running on port ${port}`);
 });
+
+// Exporting necessary variables for backend_features
+export { chain, executionLogs };
