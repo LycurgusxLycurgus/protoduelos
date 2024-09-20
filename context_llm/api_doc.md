@@ -9,6 +9,8 @@
 5. [Error Handling](#error-handling)
 6. [Rate Limiting](#rate-limiting)
 7. [Endpoints](#endpoints)
+   - [Chat List](#chat-list)
+   - [Messages](#messages)
    - [Webhook](#webhook)
    - [LLM Monitoring](#llm-monitoring)
    - [LLM Visualization](#llm-visualization)
@@ -63,18 +65,15 @@ Currently, there are no specific rate limits implemented. However, users should 
 
 #### GET /api/chat-list
 
-Retrieves a list of all chats (conversations) associated with the WhatsApp number.
+Retrieves a list of phone numbers representing active chats (conversations) associated with the WhatsApp number.
 
 Response:
-- 200 OK: Returns a JSON object containing the list of chats
+- 200 OK: Returns a JSON object containing the list of phone numbers
   ```json
   {
-    "chats": [
-      {
-        "phoneNumber": "string",
-        "lastMessage": "string",
-        "timestamp": "2023-04-01T12:00:00Z"
-      }
+    "phoneNumbers": [
+      "+1234567890",
+      "+9876543210" 
     ]
   }
   ```
@@ -154,7 +153,7 @@ Response:
 
 ### LLM Monitoring
 
-#### GET /api/llm-monitoring
+#### GET /api/llm-monitoring/monitoring
 
 Retrieves LLM chain execution data for monitoring purposes.
 
@@ -177,7 +176,7 @@ Response:
 
 ### LLM Visualization
 
-#### GET /api/llm-visualization
+#### GET /api/llm-visualization/visualization
 
 Retrieves LLM chain structure data for graph visualization.
 
