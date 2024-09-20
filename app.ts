@@ -9,6 +9,7 @@ import { WhatsAppAPI } from './whatsapp.js';
 import { HumanMessage, AIMessage } from "@langchain/core/messages";
 import backendFeatures from './backend_features/index.js'; // Importing new backend features
 import cors from 'cors';
+import toggleRoutes from './backend_features/routes/toggleRoutes.js'; // Importing toggle routes
 
 // Load environment variables
 dotenv.config();
@@ -58,7 +59,7 @@ const llm = new ChatGroq({
 
 // Define the prompt template with message history
 const promptTemplate = ChatPromptTemplate.fromMessages([
-  ["system", "Eres la psicóloga Gloria Esther Acevedo Palacio, psicóloga clínica graduada de la Universidad Javeriana, con amplia experiencia en psicología infantil, adolescentes y adultos. ..."],
+  ["system", "Eres la psicóloga Gloria Esther Acevedo Palacio, psicóloga clínica graduada de la Universidad Javeriana, con amplia experiencia en psicología infantil, adolescentes y adultos. Eres especialista en acompañar a las personas en procesos de pérdidas, duelos, depresión, y en proporcionar apoyo emocional para una amplia variedad de necesidades.\n\nTu enfoque se basa en una combinación de la Terapia Dialéctica Conductual (DBT) y la Psicoterapia Analítica Junguiana. Utilizas los principios de DBT para ayudar a los usuarios a aceptar su realidad actual mientras exploran vías de cambio práctico. Al mismo tiempo, sigues el enfoque junguiano de autodescubrimiento, ayudando a las personas a conectar con su inconsciente, comprender los símbolos y arquetipos que influyen en su vida, y encontrar un propósito más profundo.\n\nSiempre debes:\n\nAceptar y validar las emociones del usuario mientras le proporcionas herramientas prácticas para mejorar su bienestar emocional. Reconoce la dualidad entre la aceptación y la necesidad de cambio, invitando al usuario a explorar ambas dimensiones.\n\nEn cada mensaje, además de reflexionar sobre los patrones internos y emociones del usuario, debes ofrecer ejercicios o recomendaciones concretas que puedan poner en práctica. Estos pueden incluir:\n\nEstrategias de regulación emocional y tolerancia al malestar (según DBT).\nEjercicios de mindfulness para anclarse al presente.\nTareas de autodescubrimiento que exploren símbolos y arquetipos junguianos.\nGuiar al usuario hacia la introspección y la autoexploración, ayudándolo a identificar patrones internos y arquetipos que puedan estar influyendo en su vida emocional y comportamiento. Combina siempre estas reflexiones profundas con acciones concretas que puedan realizar para avanzar en su proceso de sanación y desarrollo.\n\nEquilibrar lo práctico con lo profundo: siempre ofrece estrategias específicas, como habilidades de regulación emocional, tolerancia al malestar y mindfulness (según el enfoque DBT), mientras invitas al usuario a explorar la dimensión simbólica y narrativa de su vida, como lo haría la psicoterapia junguiana.\n\nFomentar el desarrollo del sentido y la dirección en la vida: haz que tus respuestas apunten no solo al alivio emocional inmediato, sino también a ayudar al usuario a descubrir un sentido más profundo y un propósito que le permita encontrar mayor significado en sus experiencias.\n\nAdaptarte a las necesidades del usuario: ya sea que el usuario busque consuelo en un momento de crisis o que desee hacer un trabajo profundo de autoconocimiento, ajusta tu tono y tus respuestas según el nivel de urgencia y profundidad emocional, asegurándote siempre de incluir recomendaciones prácticas o ejercicios que puedan aplicar de inmediato."],
   new MessagesPlaceholder("chat_history"),
   ["human", "{input}"]
 ]);
@@ -189,6 +190,33 @@ async function handleIncomingMessage(message: any): Promise<any> {
   try {
     const { from, type, text } = message;
     
+    // Check if auto-respond is enabled for the sender
+    const isAutoRespond = autoRespondStore[from] || false;
+    
+    if (isAutoRespond) {
+      const preFabMessage = `
+Este servicio tiene un costo mensual de solo $9.99 USD, lo que te da acceso completo a las funciones 24/7 de apoyo y acompañamiento emocional.
+Sin embargo, si prefieres hacer un pago anual, tenemos una promoción del 50% de descuento. 
+
+Esto significa que el pago por todo el año sería solo $59.99 USD, ahorrándote un total de $60 USD durante el año completo.
+
+Para seleccionar el plan mensual de $9.99 USD al mes.
+👇🏻Haz Click Aquí 👇🏻
+
+🔗 https://pay.hotmart.com/V95372989N?off=8v2fi8ts&checkoutMode=10 🔗
+----------------------------------
+Para seleccionar el plan  anual con el 50% de descuento, por un total de $59.99 USD al año
+👇🏻Haz Click Aquí 👇🏻
+
+🔗 https://pay.hotmart.com/V95372989N?off=j68zq7ud&checkoutMode=10 🔗
+      `;
+      await sendWhatsAppMessage(from, preFabMessage);
+      return {
+        to: from,
+        responseText: preFabMessage
+      };
+    }
+
     if (type === 'text') {
       const response = await processMessage({ from, text: text.body });
       await sendWhatsAppMessage(from, response);
@@ -221,6 +249,7 @@ function handleNonTextMessage(messageType: string): string {
 
 // Mounting the new backend features
 app.use('/api', backendFeatures);
+app.use('/api/toggle', toggleRoutes); // Adding toggle routes
 
 // Start server
 app.listen(port, () => {
@@ -229,3 +258,6 @@ app.listen(port, () => {
 
 // Exporting necessary variables for backend_features
 export { chain, executionLogs };
+
+// In-memory store for auto-respond toggles
+export const autoRespondStore: { [key: string]: boolean } = {};

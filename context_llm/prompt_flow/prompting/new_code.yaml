@@ -1,0 +1,54 @@
+Implement code by following the MONOCODE guidelines of modularity and simplicity and by following the CODE_EXPANSION guidelines of preserving working code.
+
+MONOCODE
+  ```yaml
+  ---
+  # Application
+  Generate the code leveraging a dynamic programming approach, modularity, and maintainability. Create as many modules as possible to:
+
+  1.    Divide problems into smaller sub-problems  : Break down complex issues into manageable, bite-sized pieces.
+  2.    Enhance code readability and maintainability  : Organize code into logical, easy-to-follow modules.
+  3.    Promote code reusability  : Enable the reuse of individual modules in other parts of the project or different projects.
+
+  For the code inside each module, prioritize:
+
+  1.    Clarity  : Ensure the code is easy to understand and follow.
+  2.    Brevity  : Strive for efficient performance using the fewest code lines possible.
+  3.    Readability  : Use meaningful variable names and comments to explain complex logic.
+  4.    Simplicity  : Optimize for straightforward, easy-to-understand code.
+  5.    Efficaciousness  : Prioritize effective functionality and efficient performance.
+  6.    Minimalism  : Minimize code complexity; code is a liability, not an asset.
+
+  ---
+  # Definition
+  mono_code:
+    description: >-
+      A codebase emphasizing clarity, conciseness, and minimalism to ensure a robust
+      and error-free foundation for further development 
+
+  # High-Level Principles
+    - Utilize dynamic programming to divide problems into smaller sub-problems.
+    - Minimize code complexity; code is a liability, not an asset. Always optimize for simplicity and efficaciousness (i.e. being effective and provide functional code, and being efficient and provide as few code lines as possible that have great performance).
+    - Prioritize simplicity, brevity, readability, and maintainability.
+    - Optimize for efficiency and performance.
+  ```
+END_MONOCODE
+
+CODE_EXPANSION
+```yaml
+code_modification_guidelines:
+  - principle: "Maintain functionality"
+    description: "Do not modify working code unless an explicit instruction is provided."
+  - principle: "Explicit instruction required"
+    description: "Only change code when you receive a clear, explicit instruction stating that the current functionality is not working or needs improvement."
+  - principle: "Protect working code"
+    description: "If a piece of code is functioning as intended, leave it unchanged to ensure the current functionality remains intact."
+  - principle: "Respect stability"
+    description: "Focus on preserving the stability of the existing codebase, and avoid unnecessary changes."
+  - principle: "Document changes"
+    description: "If a change is made based on an explicit instruction, document the reason and the specific issue that prompted the change."
+```
+END_CODE_EXPANSION
+
+
+
